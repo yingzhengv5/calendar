@@ -13,7 +13,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -31,26 +31,42 @@ jobs:
         env:
           VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
 
-      # Create server.js
-      - name: Create server file
+      # Create web.config for Azure
+      - name: Create web.config
         run: |
-          echo "const express = require('express');
-          const path = require('path');
-          const app = express();
-          app.use(express.static(path.join(__dirname, 'dist')));
-          app.get('*', (req, res) => {
-            res.sendFile(path.join(__dirname, 'dist', 'index.html'));
-          });
-          const port = process.env.PORT || 8080;
-          app.listen(port, () => {
-            console.log(\`Server is running on port \${port}\`);
-          });" > server.js
-
-      # Update package.json
-      - name: Update package.json
-        run: |
-          npm install express
-          npm pkg set scripts.start="node server.js"
+          echo '<?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <system.webServer>
+              <webSocket enabled="false" />
+              <handlers>
+                <add name="iisnode" path="server.js" verb="*" modules="iisnode"/>
+              </handlers>
+              <rewrite>
+                <rules>
+                  <rule name="NodeInspector" patternSyntax="ECMAScript" stopProcessing="true">
+                    <match url="^server.js\/debug[\/]?" />
+                  </rule>
+                  <rule name="StaticContent">
+                    <action type="Rewrite" url="dist{REQUEST_URI}"/>
+                  </rule>
+                  <rule name="DynamicContent">
+                    <conditions>
+                      <add input="{REQUEST_FILENAME}" matchType="IsFile" negate="True"/>
+                    </conditions>
+                    <action type="Rewrite" url="server.js"/>
+                  </rule>
+                </rules>
+              </rewrite>
+              <security>
+                <requestFiltering>
+                  <hiddenSegments>
+                    <remove segment="bin"/>
+                  </hiddenSegments>
+                </requestFiltering>
+              </security>
+              <httpErrors existingResponse="PassThrough" />
+            </system.webServer>
+          </configuration>' > web.config
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -68,8 +84,8 @@ jobs:
       name: "Production"
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
@@ -94,4 +110,4 @@ jobs:
           app-name: "pet-calendar"
           slot-name: "Production"
           package: .
-          startup-command: "npm start"
+          startup-command: "PORT=8080 npm start"
