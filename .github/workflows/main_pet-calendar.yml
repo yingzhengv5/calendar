@@ -66,10 +66,21 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_88780D74EC124A7AB41EBBB22FEEC132 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD0DAEDC8D1B42649D96330DC1C15E82 }}
 
+      - name: Clean wwwroot before deploy
+        uses: azure/CLI@v1
+        with:
+          azcliversion: latest
+          inlineScript: |
+            az webapp deployment source delete \
+              --name pet-calendar \
+              --resource-group <pet-calendar_group> \
+              --delete-all-files true
+
       - name: "Deploy to Azure Web App"
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: "pet-calendar"
           slot-name: "Production"
-          package: .
+          package: ./release
+          startup-command: "echo 'Static site' && exit 0"
