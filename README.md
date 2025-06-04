@@ -1,4 +1,4 @@
-# calendar app
+# Calendar app
 
 Link: https://calendar-ying.vercel.app/
 

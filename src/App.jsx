@@ -1,10 +1,10 @@
 import "./index.css";
 import { useCallback, useEffect, useState } from "react";
 import axios from "axios";
-import DateDisplay from "../components/DateDisplay";
-import MainImageDisplay from "../components/MainImageDisplay";
-import ImageSlider from "../components/ImageSlider";
-import CategoryDialog from "../components/CategoryDialog";
+import DateDisplay from "./components/DateDisplay";
+import MainImageDisplay from "./components/MainImageDisplay";
+import ImageSlider from "./components/ImageSlider";
+import CategoryDialog from "./components/CategoryDialog";
 import { Container, Grid } from "@mui/material";
 import { useColor } from "color-thief-react";
 
