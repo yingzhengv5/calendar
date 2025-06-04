@@ -28,6 +28,8 @@ jobs:
           npm install
           npm run build --if-present
           npm run test --if-present
+        env:
+          VITE_API_KEY: ${{ secrets.VITE_API_KEY }}
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -60,9 +62,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_F2CAD459D9EE47029273C5A4B86879B3 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_88780D74EC124A7AB41EBBB22FEEC132 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD0DAEDC8D1B42649D96330DC1C15E82 }}
+          client-id: ${{ secrets.__clientidsecretname__ }}
+          tenant-id: ${{ secrets.__tenantidsecretname__ }}
+          subscription-id: ${{ secrets.__subscriptionidsecretname__ }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
@@ -71,4 +73,3 @@ jobs:
           app-name: 'pet-calendar'
           slot-name: 'Production'
           package: .
-          
