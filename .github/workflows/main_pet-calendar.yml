@@ -57,7 +57,9 @@ jobs:
           name: node-app
 
       - name: Unzip artifact for deployment
-        run: unzip release.zip
+        run: |
+          mkdir -p release  
+          unzip release.zip -d release
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -71,6 +73,5 @@ jobs:
         uses: azure/webapps-deploy@v3
         with:
           app-name: "pet-calendar"
-          slot-name: "Production"
           package: ./release
           startup-command: "echo 'Static site' && exit 0"
