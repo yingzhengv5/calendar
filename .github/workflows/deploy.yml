@@ -35,3 +35,6 @@ jobs:
           app-name: "petcalendar"
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_C593304CBB1546E7B5005466081ED3BB }}
           package: "./dist"
+          clean: true
+          target: "/site/wwwroot"
+          verbose: true
